@@ -1,0 +1,11 @@
+streamlit
+chromadb
+sentence-transformers
+pypdf
+python-pptx
+python-docx
+torch
+transformers
+accelerate
+bitsandbytes
+numpy
