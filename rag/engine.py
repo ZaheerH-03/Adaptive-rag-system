@@ -91,15 +91,7 @@ Rules:
 - Use [Source 1], [Source 2], etc whenever referring to information.
 - If the answer cannot be found in the provided sources, reply:
 
-"I cannot answer this from the notes. Please re-check the material or ask your faculty."
-
-SOURCES:
-{{context}}
-
-QUESTION:
-{{question}}
-
-Provide clean and structured answer now:
+"I cannot answer this from the notes. Please re-check the material or ask your faculty, and do not repeat the prompt in your replies."
 
 SOURCES:
 {context}

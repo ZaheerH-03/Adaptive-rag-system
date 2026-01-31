@@ -8,7 +8,6 @@ from .schema import DocUnit
 
 
 def split_into_sentences(text: str) -> List[str]:
-    # Simple sentence splitter; can replace with nltk/spacy later
     raw_sentences = re.split(r'(?<=[.!?])\s+', text.strip())
     sentences = [s.strip() for s in raw_sentences if s.strip()]
     return sentences

@@ -19,7 +19,7 @@ class DocUnit:
         if self.page_num is not None:
             meta['page_num'] = self.page_num
         if self.slide_num is not None:
-            meta['page_num'] = self.slide_num
+            meta['slide_num'] = self.slide_num
         if self.section_title is not None:
             meta['section_title'] = self.section_title
         if self.extra_meta is not None:
