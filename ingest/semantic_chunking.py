@@ -4,7 +4,7 @@ import numpy as np
 import re
 from sentence_transformers import SentenceTransformer
 
-from .schema import DocUnit
+from core.schema import DocUnit
 
 
 def split_into_sentences(text: str) -> List[str]:

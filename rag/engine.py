@@ -67,43 +67,47 @@ class RAGEngine:
             ctx_blocks.append(f"[{label}]\n{d}")
 
         context = "\n\n".join(ctx_blocks)
-
         prompt = f"""
-You are a professional tutor helping students prepare for exams using their own class notes stored in SOURCES.
-Your job is to explain concepts clearly and accurately, only using information present in sources.
+        SYSTEM ROLE:
+        You are an exam tutor. Answer questions ONLY using the provided sources.
 
-First, read all the sources fully.
-Extract important definitions, properties, formulas, examples, and implications.
+        STRICT RULES:
+        - Do NOT repeat the question, instructions, or sources.
+        - Do NOT explain your reasoning process.
+        - Do NOT mention the word "source" except in citations like [Source 1].
+        - You MAY rephrase and summarize the information in your own words.
+        - Do NOT copy sentences verbatim unless necessary.
+        - When the question asks for "types", explicitly list and briefly explain each type using the sources.
 
-Your answer must be structured clearly and well-explained:
+        - If the answer is not present in the sources, reply EXACTLY with:
+        "I cannot answer this from the notes."
 
-Answer Format:
-1. Short definition in 2-3 lines
-2. Explanation in simple terms
-3. A detailed explanation for showcase all vital topics and subtopics.
-3. Why this matters / when it is used
-4. Optional: provide short example IF it is explicitly present in the sources
+        SOURCES (read-only):
+        <<<
+        {context}
+        >>>
 
-Rules:
-- You may rewrite content in simpler language.
-- DO NOT add any new facts that are not clearly present in the provided sources.
-- DO NOT invent external references, organizations, history, or examples.
-- Use [Source 1], [Source 2], etc whenever referring to information.
-- If the answer cannot be found in the provided sources, reply:
+        QUESTION:
+        {question}
 
-"I cannot answer this from the notes. Please re-check the material or ask your faculty, and do not repeat the prompt in your replies."
+        FINAL ANSWER:
+        """
 
-SOURCES:
-{context}
-
-QUESTION:
-{question}
-
-ANSWER (refer to sources like [Source 1], [Source 2]):
-"""
         return prompt.strip()
 
     # ---------- 4. Main answer method ----------
+    def clean_answer(text: str) -> str:
+        banned_starts = [
+            "You are",
+            "SYSTEM ROLE",
+            "STRICT RULES",
+            "SOURCES",
+            "QUESTION"
+        ]
+        for b in banned_starts:
+            if text.strip().startswith(b):
+                text = text.split("\n", 1)[-1]
+        return text.strip()
 
     def answer(
         self,
@@ -136,9 +140,8 @@ ANSWER (refer to sources like [Source 1], [Source 2]):
         ans_text = self.llm.generate(
             prompt,
             max_new_tokens=max_new_tokens,
-            temperature=0.2,
+            temperature=0.6,
         )
-
         sources = []
         for i, m in enumerate(metas, start=1):
             sources.append(
