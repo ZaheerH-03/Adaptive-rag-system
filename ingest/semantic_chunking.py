@@ -3,9 +3,24 @@ from typing import List, Dict, Tuple
 import numpy as np
 import re
 from sentence_transformers import SentenceTransformer
-
 from core.schema import DocUnit
+from core.interfaces import Chunker
 
+class SemanticChunker(Chunker):
+    def __init__(self, embed_model, sim_threshold, min_chars, max_chars):
+        self.embed_model = embed_model
+        self.sim_threshold = sim_threshold
+        self.min_chars = min_chars
+        self.max_chars = max_chars
+
+    def chunk(self, unit):
+        return semantic_chunks_for_unit(
+            unit=unit,
+            embed_model=self.embed_model,
+            sim_threshold=self.sim_threshold,
+            min_chars=self.min_chars,
+            max_chars=self.max_chars,
+        )
 
 def split_into_sentences(text: str) -> List[str]:
     raw_sentences = re.split(r'(?<=[.!?])\s+', text.strip())
