@@ -1,14 +1,12 @@
-# ingest/build_index.py
+# index/build_index.py
 import os
 from pathlib import Path
 from typing import List, Dict
 
 from sentence_transformers import SentenceTransformer
-import chromadb
 
 from config import (
     RAW_DIR,
-    CHROMA_DIR,
     EMBED_MODEL_NAME,
     SEM_SIM_THRESHOLD,
     SEM_MIN_CHARS,
@@ -16,24 +14,22 @@ from config import (
 )
 from ingest.loaders import load_units_for_file
 from ingest.semantic_chunking import semantic_chunk_units
+from index.storage import ChromaIndex
+from embeddings.embedder import HuggingFaceEmbedder
 
 
 def main():
-    CHROMA_DIR.mkdir(parents=True, exist_ok=True)
-
     print(f"Loading embedding model: {EMBED_MODEL_NAME}")
-    embed_model = SentenceTransformer(EMBED_MODEL_NAME)
+    # embed_model = SentenceTransformer(EMBED_MODEL_NAME) -> OLD
+    embed_model = HuggingFaceEmbedder(EMBED_MODEL_NAME) # -> NEW
 
-    client = chromadb.PersistentClient(path=str(CHROMA_DIR))
-
-    collection = client.get_or_create_collection("notes")
+    # Use our new Class!
+    index = ChromaIndex(collection_name="notes")
 
     all_documents: List[str] = []
     all_metadatas: List[Dict] = []
     all_ids: List[str] = []
-
-    global_chunk_counter = 0  # id uniqueness across all files
-
+    
     for root, _, files in os.walk(RAW_DIR):
         for fname in files:
             path = Path(root) / fname
@@ -54,19 +50,18 @@ def main():
 
             file_chunk_idx = 0  # index within this file
 
-            for chunk_text, meta in chunks:
-                if not chunk_text.strip():
+            for chunk in chunks:
+                if not chunk.text.strip():
                     continue
 
                 # augment metadata with per-file chunk index
-                meta = dict(meta)  # copy to avoid mutating original
+                meta = dict(chunk.metadata)  # copy to avoid mutating original
                 meta["chunk_idx"] = file_chunk_idx
                 file_chunk_idx += 1
 
-                global_chunk_counter += 1
-                all_documents.append(chunk_text)
+                all_documents.append(chunk.text)
                 all_metadatas.append(meta)
-                all_ids.append(f"{fname}_chunk_{global_chunk_counter}")
+                all_ids.append(chunk.chunk_id) # USE THE EXISTING UUID!
 
     if not all_documents:
         print("No chunks to index.")
@@ -76,15 +71,15 @@ def main():
     print("Embedding chunks...")
     embeddings = embed_model.encode(all_documents, show_progress_bar=True)
 
-    print("Adding to Chroma collection...")
-    collection.add(
+    print("Adding to Chroma Index (with stable IDs)...")
+    index.add(
         documents=all_documents,
         embeddings=embeddings.tolist(),
         metadatas=all_metadatas,
-        ids=all_ids,
+        ids=all_ids  # Passing the UUIDs from chunks
     )
 
-    print("Index built and stored at:", CHROMA_DIR)
+    print("Index built successfully!")
 
 
 if __name__ == "__main__":

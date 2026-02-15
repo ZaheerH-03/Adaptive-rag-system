@@ -2,12 +2,11 @@
 from typing import List
 import numpy as np
 import re
-from sentence_transformers import SentenceTransformer
+from core.interfaces import Chunker, Embedder
 from core.document import DocUnit, Chunk
-from core.interfaces import Chunker
 
 class SemanticChunker(Chunker):
-    def __init__(self, embed_model, sim_threshold, min_chars, max_chars):
+    def __init__(self, embed_model: Embedder, sim_threshold, min_chars, max_chars):
         self.embed_model = embed_model
         self.sim_threshold = sim_threshold
         self.min_chars = min_chars
@@ -30,7 +29,7 @@ def split_into_sentences(text: str) -> List[str]:
 
 def semantic_chunks_for_unit(
     unit: DocUnit,
-    embed_model: SentenceTransformer,
+    embed_model: Embedder,
     sim_threshold: float,
     min_chars: int,
     max_chars: int,
@@ -39,7 +38,8 @@ def semantic_chunks_for_unit(
     if not sentences:
         return []
 
-    sent_embeddings = embed_model.encode(sentences, convert_to_numpy=True)
+    # Interface returns List[List[float]], convert to numpy for math
+    sent_embeddings = np.array(embed_model.embed(sentences))
 
     chunks: List[Chunk] = []
     current_sentences: List[str] = [sentences[0]]

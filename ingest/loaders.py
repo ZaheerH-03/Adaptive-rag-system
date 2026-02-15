@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import List
 from pptx import Presentation
 from docx import Document as DocxDocument
+
 def load_pdf_units(path: Path) -> List[DocUnit]:
     reader = PdfReader(str(path))
     units: List[DocUnit] = []
