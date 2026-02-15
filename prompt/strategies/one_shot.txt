@@ -1,0 +1,20 @@
+Example:
+
+Context:
+Data integration is the process of combining data from different sources into a unified and consistent view. Organizations often store data in multiple systems such as databases, cloud applications, and files, which creates data silos. Data integration techniques bring this data together so it can be analyzed and used effectively.
+
+A common approach to data integration is ETL (Extract, Transform, Load), where data is extracted from source systems, transformed into a standardized format, and loaded into a central repository such as a data warehouse. Modern platforms may also support real-time data integration and automated data pipelines.
+
+Effective data integration improves data quality, enables comprehensive analytics, and supports business intelligence and decision-making across the organization.
+
+Question:
+What is data integration?
+
+Answer:
+Overview:
+Data integration is the process of combining data from multiple sources into a unified and consistent view so it can be analyzed and used effectively. It helps organizations bring together data stored across different systems, reducing silos and enabling better access to information.
+
+Details:
+It typically involves methods such as ETL, where data is extracted from source systems, transformed into a standardized format, and loaded into a central repository like a data warehouse. Modern data integration platforms may also support real-time pipelines and automation. By integrating data, organizations improve data quality and enable analytics, business intelligence, and informed decision-making.
+
+Now answer the real question using the same structure and approach.

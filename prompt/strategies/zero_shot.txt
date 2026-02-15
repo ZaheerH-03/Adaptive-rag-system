@@ -1,0 +1,9 @@
+Provide the answer in two parts:
+
+Overview:
+A clear and concise explanation of the concept (about 80–120 words).
+
+Details:
+A deeper explanation expanding on the overview using relevant information.
+
+Follow this structure consistently.
