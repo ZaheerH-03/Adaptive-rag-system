@@ -1,9 +1,9 @@
 # ingest/semantic_chunking.py
-from typing import List, Dict, Tuple
+from typing import List
 import numpy as np
 import re
 from sentence_transformers import SentenceTransformer
-from core.schema import DocUnit
+from core.document import DocUnit, Chunk
 from core.interfaces import Chunker
 
 class SemanticChunker(Chunker):
@@ -34,14 +34,14 @@ def semantic_chunks_for_unit(
     sim_threshold: float,
     min_chars: int,
     max_chars: int,
-) -> List[Tuple[str, Dict]]:
+) -> List[Chunk]:
     sentences = split_into_sentences(unit.text)
     if not sentences:
         return []
 
     sent_embeddings = embed_model.encode(sentences, convert_to_numpy=True)
 
-    chunks: List[Tuple[str, Dict]] = []
+    chunks: List[Chunk] = []
     current_sentences: List[str] = [sentences[0]]
     current_embs: List[np.ndarray] = [sent_embeddings[0]]
     current_len = len(sentences[0])
@@ -50,12 +50,20 @@ def semantic_chunks_for_unit(
         nonlocal current_sentences, current_embs, current_len
         if not current_sentences:
             return
+
         chunk_text = " ".join(current_sentences).strip()
         if not chunk_text:
             current_sentences, current_embs, current_len = [], [], 0
             return
+
         meta = unit.to_metadata()
-        chunks.append((chunk_text, meta))
+        chunks.append(
+            Chunk(
+                text = chunk_text,
+                metadata=meta,
+                parent_id=unit.id,
+            )
+        )
         current_sentences, current_embs, current_len = [], [], 0
 
     for i in range(1, len(sentences)):
@@ -88,8 +96,8 @@ def semantic_chunk_units(
     sim_threshold: float,
     min_chars: int,
     max_chars: int,
-) -> List[Tuple[str, Dict]]:
-    all_chunks: List[Tuple[str, Dict]] = []
+) -> List[Chunk]:
+    all_chunks: List[Chunk] = []
     for unit in units:
         unit_chunks = semantic_chunks_for_unit(
             unit,

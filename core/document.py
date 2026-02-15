@@ -1,5 +1,7 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional, Dict
+import uuid
+
 
 @dataclass()
 class DocUnit:
@@ -8,8 +10,10 @@ class DocUnit:
     file_type: str
     page_num: Optional[int] = None
     slide_num: Optional[int] = None
-    section_title: Optional[int] = None
+    section_title: Optional[str] = None
     extra_meta : Optional[Dict] = None
+
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     def to_metadata(self) -> Dict:
         meta = {
@@ -26,3 +30,11 @@ class DocUnit:
             meta.update(self.extra_meta)
 
         return meta
+
+@dataclass
+class Chunk:
+    text: str
+    metadata: Dict
+    parent_id: str
+
+    chunk_id: str = field(default_factory=lambda: str(uuid.uuid4()))
