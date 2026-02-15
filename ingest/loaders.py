@@ -1,5 +1,5 @@
 from pypdf import PdfReader
-from core.schema import DocUnit
+from core.document import DocUnit
 from pathlib import Path
 from typing import List
 from pptx import Presentation
