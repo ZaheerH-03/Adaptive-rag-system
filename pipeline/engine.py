@@ -1,5 +1,7 @@
 from typing import Optional, Callable, List, Dict, Any, Tuple
 from prompts.zero_shot import zero_shot_prompt
+from prompts.one_shot import one_shot_prompt
+from prompts.few_shot import few_shot_prompt    
 from core.interfaces import Retriever, Generator
 from config import TOP_K
 
@@ -75,7 +77,7 @@ class RAGEngine:
         prompt_strategy: Optional[Callable[[str, str], str]] = None
     ) -> Dict[str, Any]:
         if prompt_strategy is None:
-            prompt_strategy = zero_shot_prompt
+            prompt_strategy = one_shot_prompt
 
         results = self.retrieve(question, top_k=top_k)
 
