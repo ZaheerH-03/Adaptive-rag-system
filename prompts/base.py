@@ -1,7 +1,6 @@
 def build_base_prompt(
     context: str,
     question: str,
-    strategy_instructions: str,
 ) -> str:
     return f"""
 SYSTEM ROLE:
@@ -17,8 +16,6 @@ STRICT RULES:
 - If the answer is not present in the sources, reply EXACTLY with:
 "I cannot answer this from the notes."
 
-ANSWER FORMAT:
-{strategy_instructions}
 
 SOURCES (read-only):
 <<<
