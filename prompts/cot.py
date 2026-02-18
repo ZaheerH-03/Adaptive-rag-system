@@ -1,7 +1,7 @@
-from langchain_core.prompts import PromptTemplate
+from prompts.base import build_base_prompt
 
-def cot_prompt():
-    template = """
+def cot_prompt(context: str, question: str) -> str:
+    strategy = """
 Use step-by-step reasoning based only on the provided information to derive the answer.
 
 Provide the response in this structure:
@@ -31,15 +31,5 @@ Final division: 1 / 0.19 ≈ 5.26.
 
 Final Answer:
 With 10 processors, the theoretical speedup is approximately 5.26×.
-
-Now answer the real question using the same reasoning structure.
-
-Context:
-{context}
-
-Question:
-{question}
-
-Answer:
 """
-    return PromptTemplate.from_template(template)
+    return build_base_prompt(context, question, strategy)

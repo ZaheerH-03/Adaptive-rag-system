@@ -1,7 +1,7 @@
-from langchain_core.prompts import PromptTemplate
+from prompts.base import build_base_prompt
 
-def few_shot_prompt():
-    template = """
+def few_shot_prompt(context: str, question: str) -> str:
+    strategy = """
 Examples:
 
 Context:
@@ -35,15 +35,5 @@ A Data Warehouse and a Data Lake differ primarily in how they store, structure, 
 
 Details:
 A Data Warehouse operates on a schema-on-write approach, meaning data must be transformed and structured before storage, enabling efficient SQL queries and standardized reporting. In contrast, a Data Lake uses a schema-on-read approach, allowing raw data to be stored first and structured later when needed. Warehouses support business intelligence and executive dashboards by providing a consistent view of curated data, while data lakes serve as scalable repositories for big data, machine learning, and exploratory analysis. The warehouse ensures controlled, high-quality data for decisions, whereas the lake preserves full data fidelity for flexible analytical use.
-
-Now answer the real question using the same structure and approach.
-
-Context:
-{context}
-
-Question:
-{question}
-
-Answer:
 """
-    return PromptTemplate.from_template(template)
+    return build_base_prompt(context, question, strategy)

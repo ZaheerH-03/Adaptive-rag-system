@@ -1,7 +1,7 @@
-from langchain_core.prompts import PromptTemplate
+from prompts.base import build_base_prompt
 
-def one_shot_prompt():
-    template = """
+def one_shot_prompt(context: str, question: str) -> str:
+    strategy = """
 Example:
 
 Context:
@@ -20,15 +20,5 @@ Data integration is the process of combining data from multiple sources into a u
 
 Details:
 It typically involves methods such as ETL, where data is extracted from source systems, transformed into a standardized format, and loaded into a central repository like a data warehouse. Modern data integration platforms may also support real-time pipelines and automation. By integrating data, organizations improve data quality and enable analytics, business intelligence, and informed decision-making.
-
-Now answer the real question using the same structure and approach.
-
-Context:
-{context}
-
-Question:
-{question}
-
-Answer:
 """
-    return PromptTemplate.from_template(template)
+    return build_base_prompt(context, question, strategy)

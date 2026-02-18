@@ -1,5 +1,5 @@
-from typing import List, Dict, Any, Tuple
-
+from typing import Optional, Callable, List, Dict, Any, Tuple
+from prompts.zero_shot import zero_shot_prompt
 from core.interfaces import Retriever, Generator
 from config import TOP_K
 
@@ -23,7 +23,13 @@ class RAGEngine:
         self,
         question: str,
         retrieved_items: List[Dict[str, Any]],
+        prompt_strategy: Callable[[str, str], str],
     ) -> str:
+        """
+    Builds the final prompt using retrieved context and a selected prompt strategy.
+
+    prompt_strategy: function(context: str, question: str) -> str
+    """
         ctx_blocks = []
         # retrieved_items is a list of dicts: {"text": ..., "metadata": ...}
         for i, item in enumerate(retrieved_items, start=1):
@@ -40,31 +46,11 @@ class RAGEngine:
             ctx_blocks.append(f"[{label}]\n{text}")
 
         context = "\n\n".join(ctx_blocks)
-        prompt = f"""
-        SYSTEM ROLE:
-        You are an exam tutor. Answer questions ONLY using the provided sources.
+        prompt = prompt_strategy(
+            context=context,
+            question=question
+        )
 
-        STRICT RULES:
-        - Do NOT repeat the question, instructions, or sources.
-        - Do NOT explain your reasoning process.
-        - Do NOT mention the word "source" except in citations like [Source 1].
-        - You MAY rephrase and summarize the information in your own words.
-        - Do NOT copy sentences verbatim unless necessary.
-        - When the question asks for "types", explicitly list and briefly explain each type using the sources.
-
-        - If the answer is not present in the sources, reply EXACTLY with:
-        "I cannot answer this from the notes."
-
-        SOURCES (read-only):
-        <<<
-        {context}
-        >>>
-
-        QUESTION:
-        {question}
-
-        FINAL ANSWER:
-        """
 
         return prompt.strip()
 
@@ -86,7 +72,11 @@ class RAGEngine:
         question: str,
         top_k: int = TOP_K,
         max_new_tokens: int = 512,
+        prompt_strategy: Optional[Callable[[str, str], str]] = None
     ) -> Dict[str, Any]:
+        if prompt_strategy is None:
+            prompt_strategy = zero_shot_prompt
+
         results = self.retrieve(question, top_k=top_k)
 
         if not results:
@@ -108,7 +98,7 @@ class RAGEngine:
                 "debug": {"distances": [r["score"] for r in results]},
             }
 
-        prompt = self.build_prompt(question, results)
+        prompt = self.build_prompt(question, results, prompt_strategy=prompt_strategy)
         
         # Generator interface call
         ans_text = self.generator.generate(
